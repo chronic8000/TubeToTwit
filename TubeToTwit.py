@@ -1,6 +1,7 @@
 import os
 import time
 import random
+import requests
 import googleapiclient.discovery
 import tweepy
 
@@ -46,10 +47,18 @@ video = random.choice(videos)['snippet']
 title = video['title']
 thumbnail_url = video['thumbnails']['high']['url']
 
+# Download thumbnail image and save to a local file
+response = requests.get(thumbnail_url)
+with open('thumbnail.jpg', 'wb') as f:
+    f.write(response.content)
+
 # Post title and thumbnail to Twitter
-media = api.media_upload(thumbnail_url)
+media = api.media_upload('thumbnail.jpg')
 tweet = f"{title} {media.media_id_string}"
 api.update_status(status=tweet)
+
+# Remove the local file
+os.remove('thumbnail.jpg')
 
 # Wait for three hours before running the script again
 time.sleep(3 * 60 * 60)
